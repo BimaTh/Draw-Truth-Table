@@ -5,29 +5,22 @@
 	ID: 23P0279
 	Group Number: 41
 
-	Description: This program will simulate a logic gate circuit and output the truth table for the circuit and a simplified version of the circuit.
-	Use only basic C++ code and do not use any advanced C++ code or any other libraries.
-	Do not use any classes. Use only functions and arrays.
+	To test this code, please enter the following function:
+	- Chose POS for the main function and SOP for the simplified function.
+	- Copy and paste the following 2 lines in the console:
+		
+		(~C OR A) AND (~C OR B) AND (C OR A) AND (C OR B)
+		(A OR A) AND (B OR B);
 
-	The circuit will have 3 inputs, A, B, and C. AND, OR, and NOT gates will be used to create the circuit. + a Light bulb to show the output.
-
-	Variable to define the function of the circuit
-
-	The Function is : (~C OR A) AND (~C OR B) AND (C OR A) AND (C OR B)
-	The function is simplified to :
-	(~C OR A) AND (~C OR B) AND (C OR A) AND (C OR B)
-	(A OR A) AND (B OR B);
-*/	
+		*/	
 
 #include <iostream>
 #include <string>
 using namespace std;
 
 
-// Number of possible inputs for the circuit
 const int INPUTS_COUNT = 8;
 
-// Struct to store the inputs and output of the circuit
 struct BinaryVariable {
 	bool A = 0;
 	bool B = 0;
@@ -35,7 +28,7 @@ struct BinaryVariable {
 	bool output = 0;
 };
 
-// Variables
+// 
 string Bothfunction;
 
 
@@ -51,14 +44,11 @@ int SimplifiedTermIndex = 0, SimplifiedtermsCountInFunction = 0;
 
 
 
-// Function Prototypes
 void SetLimits();
 void parameters();
 void drawTruthTable(BinaryVariable inputs[INPUTS_COUNT], string Terms[5], bool Output_of_terms[5][INPUTS_COUNT], int termsCount);
 void checkEquivalent(BinaryVariable OutputMainFunction[INPUTS_COUNT], BinaryVariable OutputSimplifiedFunction[INPUTS_COUNT]);
 void return_error(string error_message);
-
-//void calculateOutput(BinaryVariable input[INPUTS_COUNT]);
 
 bool AND_GATE(bool input1, bool input2);
 bool OR_GATE(bool input1, bool input2);
@@ -164,15 +154,14 @@ int main()
 	int coloumnIndex = 0;
 	bool Output_of_function[INPUTS_COUNT] = { 0,0,0,0,0,0,0,0 };
 
-	for (int i = 0; i < PrimarytermsCountInFunction; i++) // Loop for the terms
+
+	for (int i = 0; i < PrimarytermsCountInFunction; i++) 
 	{
 		literalIndex = 0;
 		coloumnIndex = i;
 
-		for (int h = 0; h < INPUTS_COUNT; h++) // Loop for the inputs
+		for (int h = 0; h < INPUTS_COUNT; h++)
 		{
-
-			 // Loop for the literals
 
 			for (int k = 0; k < PrimaryTerms[i].length(); k++)
 			{	
@@ -202,36 +191,36 @@ int main()
 					
 				if (term[k] == 'A')
 				{
-					literal[literalIndex] = 'A';//OutputMainFunction[h].A;
+					literal[literalIndex] = 'A';
 					literalIndex++;
 				}
 				else if (term[k] == 'B')
 				{
-					literal[literalIndex] = 'B'; //OutputMainFunction[h].B;
+					literal[literalIndex] = 'B'; 
 					literalIndex++;
 				}
 				else if (term[k] == 'C')
 				{
-					literal[literalIndex] = 'C'; //OutputMainFunction[h].C;
+					literal[literalIndex] = 'C'; 
 					literalIndex++;
 				}
 				else if (term[k] == '~')
 				{
 					if (term[k + 1] == 'A')
 					{
-						literal[literalIndex] = 'D'; //!OutputMainFunction[h].A;
+						literal[literalIndex] = 'D'; 
 						k++;
 						literalIndex++;
 					}
 					else if (term[k + 1] == 'B')
 					{
-						literal[literalIndex] = 'E'; // !OutputMainFunction[h].B;
+						literal[literalIndex] = 'E'; 
 						k++;
 						literalIndex++;
 					}
 					else if (term[k + 1] == 'C')
 					{
-						literal[literalIndex] = 'F'; // !OutputMainFunction[h].C;
+						literal[literalIndex] = 'F'; 
 						k++;
 						literalIndex++;
 					}
@@ -258,15 +247,13 @@ int main()
 		};
 	};
 
-	for (int i = 0; i < SimplifiedtermsCountInFunction; i++) // Loop for the terms
+	for (int i = 0; i < SimplifiedtermsCountInFunction; i++) 
 	{
 		literalIndex = 0;
 		coloumnIndex = i;
 
-		for (int h = 0; h < INPUTS_COUNT; h++) // Loop for the inputs
+		for (int h = 0; h < INPUTS_COUNT; h++) 
 		{
-
-			// Loop for the literals
 
 			for (int k = 0; k < SimplifiedTerms[i].length(); k++)
 			{
@@ -296,36 +283,36 @@ int main()
 
 				if (term[k] == 'A')
 				{
-					literal[literalIndex] = 'A';//OutputMainFunction[h].A;
+					literal[literalIndex] = 'A';
 					literalIndex++;
 				}
 				else if (term[k] == 'B')
 				{
-					literal[literalIndex] = 'B'; //OutputMainFunction[h].B;
+					literal[literalIndex] = 'B'; 
 					literalIndex++;
 				}
 				else if (term[k] == 'C')
 				{
-					literal[literalIndex] = 'C'; //OutputMainFunction[h].C;
+					literal[literalIndex] = 'C'; 
 					literalIndex++;
 				}
 				else if (term[k] == '~')
 				{
 					if (term[k + 1] == 'A')
 					{
-						literal[literalIndex] = 'D'; //!OutputMainFunction[h].A;
+						literal[literalIndex] = 'D';
 						k++;
 						literalIndex++;
 					}
 					else if (term[k + 1] == 'B')
 					{
-						literal[literalIndex] = 'E'; // !OutputMainFunction[h].B;
+						literal[literalIndex] = 'E'; 
 						k++;
 						literalIndex++;
 					}
 					else if (term[k + 1] == 'C')
 					{
-						literal[literalIndex] = 'F'; // !OutputMainFunction[h].C;
+						literal[literalIndex] = 'F'; 
 						k++;
 						literalIndex++;
 					}
@@ -351,6 +338,7 @@ int main()
 
 		};
 	};
+
 
 
 	for (int i = 0; i < INPUTS_COUNT; i++)
@@ -386,6 +374,7 @@ int main()
 	}
 
 
+
 	drawTruthTable(PrimaryFunction, PrimaryTerms, PrimaryTermsOutput, PrimaryTermIndex);
 	drawTruthTable(SimplifiedFunction, SimplifiedTerms, SimplifiedTermsOutput, SimplifiedTermIndex);
 
@@ -393,12 +382,18 @@ int main()
 
 	return 0;
 }
+
+// Functions
+
 void SetLimits() {
 	{
-		cout << "Welcome to the Logic Gates Simulator" << endl;
-		cout << "This program will simulate a logic gate circuit and output the truth table for the circuit and a simplified version of the circuit." << endl;
+		cout << "Welcome to the Logic Gates Simulator" << endl << endl;
+		cout << "This program will simulate a logic gate circuit and output the truth table for two logic gates circuit function and check wether these functions are equivalent or not." << endl;
+		cout << "Both functions are to be entered by the user." << endl << endl;
 		cout << "The circuit will have 3 inputs, A, B, and C. AND, OR, and NOT gates will be used to create the circuit." << endl;
+
 		cout << "Althought the user can input the function, there exists certain limitations." << endl << endl;
+		cout << "The limitations are as follows:" << endl;
 		cout << "1. The function must be Either product of sum (POS) or sum of product (SOP)." << endl;
 		cout << "2. The maximum number of terms (gates) is 5." << endl;
 		cout << "3. The maximum number of variables is 3." << endl;
@@ -407,13 +402,18 @@ void SetLimits() {
 		cout << "6 . The function must be in the following format: " << endl;
 		cout << "   - The variables must be A, B, and C." << endl;
 		cout << "   - The literals must be ~A, ~B, ~C, A, B, and C." << endl;
-		cout << "   - The operators must be AND, OR, and NOT." << endl;
+		cout << "   - The operators must be AND, OR and NOT." << endl;
 		cout << "   - The operators must be in the following format: " << endl;
 		cout << "     - AND: A AND B" << endl;
 		cout << "     - OR: A OR B" << endl;
 		cout << "     - NOT: ~A" << endl;
 		cout << "6. Each term should be in brackets. and separated by 'OR' if SOP and by  'AND' if POS." << endl;
 		cout << "   - Example: (A AND B) OR (C AND ~A) OR (B AND ~C) OR (A AND ~B) OR (C AND ~B)" << endl << endl;
+
+		cout << "The function must be entered in a single line." << endl;		
+		cout << "The function must end with a ';'" << endl << endl;
+		cout << "The function must be entered in the following format: " << endl;
+		
 	}
 };
 
@@ -466,7 +466,6 @@ bool GetBinaryValue(int BinaryIndex, char  Letter, BinaryVariable* OutputMainFun
 
 void drawTruthTable(BinaryVariable inputs[INPUTS_COUNT], string Terms[5], bool Output_of_terms[5][INPUTS_COUNT], int termsCount)
 {
-	// calculateOutput(OutputMainFunction);
 	string Head = "";
 	string TotalBars = "";
 	for (int j = 0; j < termsCount; j++)
@@ -479,13 +478,11 @@ void drawTruthTable(BinaryVariable inputs[INPUTS_COUNT], string Terms[5], bool O
 	}
 	cout << "_________________________________________________________________" + TotalBars  << endl;
 	
-	// Print the header of the truth table
 
 	cout << "|\tA\t|\tB\t|\tC\t|\t"+ Head + "Output\t|" << endl;
 	
 	cout << "_________________________________________________________________" + TotalBars << endl;
 
-	// Loop to print the truth table
 	for (int i = 0; i < INPUTS_COUNT; i++)
 	{
 		cout << "|\t"
