@@ -15,6 +15,8 @@
 
 	The Function is : (~C OR A) AND (~C OR B) AND (C OR A) AND (C OR B)
 	The function is simplified to :
+	(~C OR A) AND (~C OR B) AND (C OR A) AND (C OR B)
+	(A OR A) AND (B OR B);
 */	
 
 #include <iostream>
@@ -33,10 +35,26 @@ struct BinaryVariable {
 	bool output = 0;
 };
 
+// Variables
+string Bothfunction;
+
+
+int PrimaryFunctionType = 0;
+int SimplifiedFunctionType = 0;
+
+string PrimaryTerms[5], SimplifiedTerms[5];
+string term = "";
+
+int PrimaryTermIndex = 0, PrimarytermsCountInFunction = 0;
+
+int SimplifiedTermIndex = 0, SimplifiedtermsCountInFunction = 0;
+
+
+
 // Function Prototypes
 void SetLimits();
+void parameters();
 void drawTruthTable(BinaryVariable inputs[INPUTS_COUNT], string Terms[5], bool Output_of_terms[5][INPUTS_COUNT], int termsCount);
-void drawSimplifiedTruthTable(BinaryVariable inputs[INPUTS_COUNT]);
 void checkEquivalent(BinaryVariable OutputMainFunction[INPUTS_COUNT], BinaryVariable OutputSimplifiedFunction[INPUTS_COUNT]);
 void return_error(string error_message);
 
@@ -49,7 +67,7 @@ bool GetBinaryValue(int BinaryIndex, char  Letter, BinaryVariable* OutputMainFun
 
 
 
-BinaryVariable* OutputMainFunction = new BinaryVariable[INPUTS_COUNT]{
+BinaryVariable* PrimaryFunction = new BinaryVariable[INPUTS_COUNT]{
 	{0,0,0},
 	{0,0,1},
 	{0,1,0},
@@ -59,7 +77,7 @@ BinaryVariable* OutputMainFunction = new BinaryVariable[INPUTS_COUNT]{
 	{1,1,0},
 	{1,1,1}
 };
-BinaryVariable* OutputSimplifiedFunction = new BinaryVariable[INPUTS_COUNT]{
+BinaryVariable* SimplifiedFunction = new BinaryVariable[INPUTS_COUNT]{
 	{0,0,0},
 	{0,0,1},
 	{0,1,0},
@@ -74,82 +92,32 @@ BinaryVariable* OutputSimplifiedFunction = new BinaryVariable[INPUTS_COUNT]{
 int main()
 {
 	SetLimits();
+	parameters();
 
-	int functionType;
-	{
-		cout << "Please specify if the function is POS or SOP (1 for POS, 2 for SOP): ";
-		cin >> functionType;
-		cout << endl;
-		if (functionType != 1 && functionType != 2)
-		{
-			return_error("Input must be either 1 or 2");
-			return 0;
-		}
-	}
-
-	int termsCount;
-	{
-		cout << "Please specify the number of terms (gates): ";
-		cin >> termsCount;
-		cout << endl;
-		if (termsCount > 5)
-		{
-			return_error("Number of terms must be less than or equal to 5");
-			return 0;
-		}
-	}
-
-	int variablesCount;
-	{
-		cout << "Please specify the number of variables: ";
-		cin >> variablesCount;
-		cout << endl;
-		if (variablesCount > 3)
-		{
-			return_error("Number of variables must be less than or equal to 3");
-			return 0;
-		}
-	}
-
-	int literalsCount;
-	{
-		cout << "Please specify the number of literals: ";
-		cin >> literalsCount;
-		cout << endl;
-		if (literalsCount > 10)
-		{
-			return_error("Number of literals must be less than or equal to 10");
-			return 0;
-		}
-	}
-
-	string function;
-	cout << "Please specify the function: ";
+	cout << "Please enter your function, then in a new line enter the simplified function. After entering the simplified function, end your lines with ';'" << endl;
 	cin.ignore();
-	getline(cin, function);
+	getline(cin, Bothfunction, ';');
 	cout << endl;
 
+	string function = Bothfunction.substr(0, Bothfunction.find("\n"));
+	string Simplified = Bothfunction.substr(Bothfunction.find("\n") + 1, Bothfunction.length() - 1);
+	
+	cout << "The function is: " << function << endl << endl;
+	cout << "The simplified function is: " << Simplified << endl << endl;
 
-
-	string Terms[5];
-	string term = "";
-	int termsIndex = 0;
-	int termsCountInFunction = 0;
 	
 	
-	cout << endl << endl << "The function is: " << function << endl << endl;
-	cout << "Running the termsIndex function..." << endl;
 	for (int i = 0; i < function.length(); i++)
 	{
 		if (function[i] == '(')
 		{
-			termsCountInFunction++;
+			PrimarytermsCountInFunction++;
 			term = "";
 		}
 		else if (function[i] == ')')
 		{
-			Terms[termsIndex] = term;
-			termsIndex++;
+			PrimaryTerms[PrimaryTermIndex] = term;
+			PrimaryTermIndex++;
 		}
 		else
 		{
@@ -157,18 +125,37 @@ int main()
 		}
 	}
 
-	if (termsIndex != termsCountInFunction)
+	for (int i = 0; i < Simplified.length(); i++)
+	{
+		if (Simplified[i] == '(')
+		{
+			SimplifiedtermsCountInFunction++;
+			term = "";
+		}
+		else if (Simplified[i] == ')')
+		{
+			SimplifiedTerms[SimplifiedTermIndex] = term;
+			SimplifiedTermIndex++;
+		}
+		else
+		{
+			term += Simplified[i];
+		}
+	}
+
+	if (PrimaryTermIndex != PrimarytermsCountInFunction)
 	{
 		return_error("There has been a bracket opened and not closed.");
 		return 0;
 	}
-	if (termsIndex != termsCount)
+	if (PrimaryTermIndex > 5)
 	{
-		return_error("The number of terms is not equal to the number of terms specified.");
+		return_error("You have exceded the maximum number of terms (max. number: 5)");
 		return 0;
 	}
 
-	bool Output_of_terms[5][INPUTS_COUNT];
+	bool PrimaryTermsOutput[5][INPUTS_COUNT];
+	bool SimplifiedTermsOutput[5][INPUTS_COUNT];
 	char literal[2]={0 ,0};
 	bool termOutput = 0;
 	bool output = 0;
@@ -176,8 +163,8 @@ int main()
 	int literalIndex = 0;
 	int coloumnIndex = 0;
 	bool Output_of_function[INPUTS_COUNT] = { 0,0,0,0,0,0,0,0 };
-	// Evaluate the terms and store the output in the output array
-	for (int i = 0; i < termsCountInFunction; i++) // Loop for the terms
+
+	for (int i = 0; i < PrimarytermsCountInFunction; i++) // Loop for the terms
 	{
 		literalIndex = 0;
 		coloumnIndex = i;
@@ -187,13 +174,13 @@ int main()
 
 			 // Loop for the literals
 
-			for (int k = 0; k < Terms[i].length(); k++)
+			for (int k = 0; k < PrimaryTerms[i].length(); k++)
 			{	
 				if (literalIndex == 2) {
 					break;
 				}
 
-				term = Terms[i];
+				term = PrimaryTerms[i];
 					
 				if (term[k] == ' ') {
 					k++;
@@ -261,40 +248,149 @@ int main()
 				}
 			}
 				
-			if (functionType == 1) {
-				Output_of_terms[coloumnIndex][h] = OR_GATE((GetBinaryValue(h, literal[0], OutputMainFunction)), (GetBinaryValue(h, literal[1], OutputMainFunction)));
+			if (PrimaryFunctionType == 1) {
+				PrimaryTermsOutput[coloumnIndex][h] = OR_GATE((GetBinaryValue(h, literal[0], PrimaryFunction)), (GetBinaryValue(h, literal[1], PrimaryFunction)));
 			}
-			else if (functionType == 2) {
-				Output_of_terms[coloumnIndex][h] = AND_GATE((GetBinaryValue(h, literal[0], OutputMainFunction)), (GetBinaryValue(h, literal[1], OutputMainFunction)));
+			else if (PrimaryFunctionType == 2) {
+				PrimaryTermsOutput[coloumnIndex][h] = AND_GATE((GetBinaryValue(h, literal[0], PrimaryFunction)), (GetBinaryValue(h, literal[1], PrimaryFunction)));
 			};	
 
 		};
 	};
 
+	for (int i = 0; i < SimplifiedtermsCountInFunction; i++) // Loop for the terms
+	{
+		literalIndex = 0;
+		coloumnIndex = i;
+
+		for (int h = 0; h < INPUTS_COUNT; h++) // Loop for the inputs
+		{
+
+			// Loop for the literals
+
+			for (int k = 0; k < SimplifiedTerms[i].length(); k++)
+			{
+				if (literalIndex == 2) {
+					break;
+				}
+
+				term = SimplifiedTerms[i];
+
+				if (term[k] == ' ') {
+					k++;
+
+				}
+
+				if (term[k] == 'A') {
+					if (term[k + 1] == 'N') {
+						k += 3;
+
+					}
+				}
+
+				if (term[k] == 'O') {
+					if (term[k + 1] == 'R') {
+						k += 2;
+					}
+				}
+
+				if (term[k] == 'A')
+				{
+					literal[literalIndex] = 'A';//OutputMainFunction[h].A;
+					literalIndex++;
+				}
+				else if (term[k] == 'B')
+				{
+					literal[literalIndex] = 'B'; //OutputMainFunction[h].B;
+					literalIndex++;
+				}
+				else if (term[k] == 'C')
+				{
+					literal[literalIndex] = 'C'; //OutputMainFunction[h].C;
+					literalIndex++;
+				}
+				else if (term[k] == '~')
+				{
+					if (term[k + 1] == 'A')
+					{
+						literal[literalIndex] = 'D'; //!OutputMainFunction[h].A;
+						k++;
+						literalIndex++;
+					}
+					else if (term[k + 1] == 'B')
+					{
+						literal[literalIndex] = 'E'; // !OutputMainFunction[h].B;
+						k++;
+						literalIndex++;
+					}
+					else if (term[k + 1] == 'C')
+					{
+						literal[literalIndex] = 'F'; // !OutputMainFunction[h].C;
+						k++;
+						literalIndex++;
+					}
+					else
+					{
+						cout << "Running the Error Function 5" << endl;
+						return_error("Invalid function");
+						return 0;
+					}
+				}
+				else if (term[k] == '(' || term[k] == ')' || term[k] == ' ')
+				{
+					continue;
+				}
+			}
+
+			if (SimplifiedFunctionType == 1) {
+				SimplifiedTermsOutput[coloumnIndex][h] = OR_GATE((GetBinaryValue(h, literal[0], SimplifiedFunction)), (GetBinaryValue(h, literal[1], SimplifiedFunction)));
+			}
+			else if (SimplifiedFunctionType == 2) {
+				SimplifiedTermsOutput[coloumnIndex][h] = AND_GATE((GetBinaryValue(h, literal[0], SimplifiedFunction)), (GetBinaryValue(h, literal[1], SimplifiedFunction)));
+			};
+
+		};
+	};
+
+
 	for (int i = 0; i < INPUTS_COUNT; i++)
 	{
-		if (functionType == 1) {
-			OutputMainFunction[i].output = AND_GATE(Output_of_terms[0][i], Output_of_terms[1][i]);
-			OutputMainFunction[i].output = AND_GATE(OutputMainFunction[i].output, Output_of_terms[2][i]);
-			OutputMainFunction[i].output = AND_GATE(OutputMainFunction[i].output, Output_of_terms[3][i]);
-			OutputMainFunction[i].output = AND_GATE(OutputMainFunction[i].output, Output_of_terms[4][i]);
+		if (PrimaryFunctionType == 1) {
+			PrimaryFunction[i].output = AND_GATE(PrimaryTermsOutput[0][i], PrimaryTermsOutput[1][i]);
+			PrimaryFunction[i].output = AND_GATE(PrimaryFunction[i].output, PrimaryTermsOutput[2][i]);
+			PrimaryFunction[i].output = AND_GATE(PrimaryFunction[i].output, PrimaryTermsOutput[3][i]);
+			PrimaryFunction[i].output = AND_GATE(PrimaryFunction[i].output, PrimaryTermsOutput[4][i]);
 		}
-		else if (functionType == 2) {
-			OutputMainFunction[i].output = OR_GATE(Output_of_terms[0][i], Output_of_terms[1][i]);
-			OutputMainFunction[i].output = OR_GATE(OutputMainFunction[i].output, Output_of_terms[2][i]);
-			OutputMainFunction[i].output = OR_GATE(OutputMainFunction[i].output, Output_of_terms[3][i]);
-			OutputMainFunction[i].output = OR_GATE(OutputMainFunction[i].output, Output_of_terms[4][i]);
+		else if (PrimaryFunctionType == 2) {
+			PrimaryFunction[i].output = OR_GATE(PrimaryTermsOutput[0][i], PrimaryTermsOutput[1][i]);
+			PrimaryFunction[i].output = OR_GATE(PrimaryFunction[i].output, PrimaryTermsOutput[2][i]);
+			PrimaryFunction[i].output = OR_GATE(PrimaryFunction[i].output, PrimaryTermsOutput[3][i]);
+			PrimaryFunction[i].output = OR_GATE(PrimaryFunction[i].output, PrimaryTermsOutput[4][i]);
 		}
 	}
 
-	drawTruthTable(OutputMainFunction, Terms, Output_of_terms, termsCount);
-	// Simplified Truth Table
+	for (int i = 0; i < INPUTS_COUNT; i++)
+	{
+		if (PrimaryFunctionType == 1) {
+			SimplifiedFunction[i].output = AND_GATE(SimplifiedTermsOutput[0][i], SimplifiedTermsOutput[1][i]);
+			SimplifiedFunction[i].output = AND_GATE(SimplifiedFunction[i].output, SimplifiedTermsOutput[2][i]);
+			SimplifiedFunction[i].output = AND_GATE(SimplifiedFunction[i].output, SimplifiedTermsOutput[3][i]);
+			SimplifiedFunction[i].output = AND_GATE(SimplifiedFunction[i].output, SimplifiedTermsOutput[4][i]);
+		}
+		else if (PrimaryFunctionType == 2) {
+			SimplifiedFunction[i].output = OR_GATE(SimplifiedTermsOutput[0][i], SimplifiedTermsOutput[1][i]);
+			SimplifiedFunction[i].output = OR_GATE(SimplifiedFunction[i].output, SimplifiedTermsOutput[2][i]);
+			SimplifiedFunction[i].output = OR_GATE(SimplifiedFunction[i].output, SimplifiedTermsOutput[3][i]);
+			SimplifiedFunction[i].output = OR_GATE(SimplifiedFunction[i].output, SimplifiedTermsOutput[4][i]);
+		}
+	}
 
 
-	
+	drawTruthTable(PrimaryFunction, PrimaryTerms, PrimaryTermsOutput, PrimaryTermIndex);
+	drawTruthTable(SimplifiedFunction, SimplifiedTerms, SimplifiedTermsOutput, SimplifiedTermIndex);
 
-	/*drawSimplifiedTruthTable(OutputSimplifiedFunction);
-	checkEquivalent(OutputMainFunction, OutputSimplifiedFunction);*/
+	checkEquivalent(PrimaryFunction, SimplifiedFunction);
+
 	return 0;
 }
 void SetLimits() {
@@ -321,6 +417,26 @@ void SetLimits() {
 	}
 };
 
+void parameters() {
+	{
+		cout << "Please specify if the function is POS or SOP (1 for POS, 2 for SOP): ";
+		cin >> PrimaryFunctionType;
+		cout << endl;
+		if (PrimaryFunctionType != 1 && PrimaryFunctionType != 2)
+		{
+			return_error("Input must be either 1 or 2");
+		}
+	}
+	{
+		cout << "Please specify if the simplified function is POS or SOP (1 for POS, 2 for SOP): ";
+		cin >> SimplifiedFunctionType;
+		cout << endl;
+		if (SimplifiedFunctionType != 1 && SimplifiedFunctionType != 2)
+		{
+			return_error("Input must be either 1 or 2");
+		}
+	}
+}
 
 bool GetBinaryValue(int BinaryIndex, char  Letter, BinaryVariable* OutputMainFunction) {
 	if (Letter == 'A') {
@@ -348,16 +464,6 @@ bool GetBinaryValue(int BinaryIndex, char  Letter, BinaryVariable* OutputMainFun
 	}
 }
 
-
-//void calculateOutput(BinaryVariable input[INPUTS_COUNT])  
-//{
-//	for (int i = 0; i < INPUTS_COUNT; i++)
-//	{
-//		input[i].output = (!input[i].C || input[i].A) && (!input[i].C || input[i].B) && (input[i].C || input[i].A) && (input[i].C || input[i].B);
-//	}
-//}
-
-// Function to draw the truth table of the circuit
 void drawTruthTable(BinaryVariable inputs[INPUTS_COUNT], string Terms[5], bool Output_of_terms[5][INPUTS_COUNT], int termsCount)
 {
 	// calculateOutput(OutputMainFunction);
@@ -390,106 +496,50 @@ void drawTruthTable(BinaryVariable inputs[INPUTS_COUNT], string Terms[5], bool O
 		{
 			cout << Output_of_terms[j][i] << "\t|\t";
 		}
-		/*
-			<< Output_of_terms[0][i] << "\t|\t"
-			<< Output_of_terms[1][i] << "\t|\t" 
-			<< Output_of_terms[2][i] << "\t|\t" 
-			<< Output_of_terms[3][i] << "\t|\t" 
-			<< Output_of_terms[4][i] << "\t|\t"*/ 
 			cout << inputs[i].output << "\t|" << endl;
 	}
-
-
-	/*for (int i = 0; i < INPUTS_COUNT; i++)  
-	{
-		cout << "|\t" 
-			<< inputs[i].A << "\t|\t" 
-			<< inputs[i].B << "\t|\t" 
-			<< inputs[i].C << "\t|\t" 
-			<< !inputs[i].C << "\t|\t" 
-			<< (!inputs[i].C || inputs[i].A) << "\t|\t" 
-			<< (!inputs[i].C || inputs[i].B) << "\t|\t" 
-			<< (inputs[i].C || inputs[i].A) << "\t|\t" 
-			<< (inputs[i].C || inputs[i].B) << "\t|\t" 
-			<< inputs[i].output << "\t|" << endl;
-	}*/
 	
 	cout << "_________________________________________________________________" + TotalBars << endl;
 
 }
 
-// Calcule the simplified function of the circuit
-void calculateSimplifiedOutput(BinaryVariable input[INPUTS_COUNT])
-{
-	for (int i = 0; i < INPUTS_COUNT; i++)
-	{
-		input[i].output = (input[i].A && input[i].B);
-	}
-}
-
-// Function to draw the simplified truth table of the circuit
-void drawSimplifiedTruthTable(BinaryVariable inputs[INPUTS_COUNT])
-{
-	calculateSimplifiedOutput(OutputSimplifiedFunction);
-	
-	cout << "_________________________________________________________________" << endl;
-	
-	// Print the header of the truth table
-	cout << "|\tA\t|\tB\t|\tA AND B\t|\tOutput\t|" << endl; 
-	
-	cout << "_________________________________________________________________" << endl;
-
-	// Loop to print the truth table
-	for (int i = 0; i < INPUTS_COUNT; i++)
-	{
-		cout << "|\t" 
-			<< inputs[i].A << "\t|\t" 
-			<< inputs[i].B << "\t|\t" 
-			<< (inputs[i].A && inputs[i].B) << "\t|\t" 
-			<< inputs[i].output << "\t|" << endl;
-	}
-	
-	cout << "_________________________________________________________________" << endl;
-}
-
-// Check whether the 2 expressions are equivalent or not.
 void checkEquivalent(BinaryVariable OutputMainFunction[INPUTS_COUNT], BinaryVariable OutputSimplifiedFunction[INPUTS_COUNT])
 {
 	cout << endl;
 	cout << "Checking if the 2 expressions are equivalent or not..." << endl;
 	
+	bool flag = 1;
+
 	for (int i = 0; i < INPUTS_COUNT; i++)
 	{
 		if (OutputMainFunction[i].output != OutputSimplifiedFunction[i].output)
 		{
 			cout << "Both Functions Are not Equivalent.";
+			flag = 0;
 			break;
 		}
 	}
+	if(flag)
 	cout << "Functions Are Equivalent";
 	cout << endl;
 }
 
-// Error message function
 void return_error(string error_message = "Unhandled function")
 {
 	cout << "Invalid Input. Exiting Program..." << endl;
 	cout << "Error: " + error_message << endl;
 }
 
-// AND Gate Function
 bool AND_GATE(bool input1, bool input2)
 {
 	return input1 && input2;
 }
 
-// OR Gate Function
 bool OR_GATE(bool input1, bool input2)
 {
 	return (input1 || input2);
 }
 
-// NOT Gate Function
 bool NOT_GATE(bool input)
 {
 	return !input;
