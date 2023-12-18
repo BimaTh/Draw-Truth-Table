@@ -10,17 +10,19 @@
 	- Copy and paste the following 2 lines in the console:
 		
 		(~C OR A) AND (~C OR B) AND (C OR A) AND (C OR B)
-		(A OR A) AND (B OR B);
+		(A AND B);
 
 		*/	
 
-#include <iostream>
-#include <string>
+#include <iostream> // Importing the input/output library
+#include <string> // Importing the string library to manipulate the input from user
 using namespace std;
 
 
-const int INPUTS_COUNT = 8;
+const int INPUTS_COUNT = 8; // The number of inputs to the circuit
 
+
+// Defining a struct to store the inputs and output of the circuit
 struct BinaryVariable {
 	bool A = 0;
 	bool B = 0;
@@ -28,7 +30,7 @@ struct BinaryVariable {
 	bool output = 0;
 };
 
-// 
+// Defining the variables to be used in the program
 string Bothfunction;
 
 
@@ -43,6 +45,7 @@ int PrimaryTermIndex = 0, PrimarytermsCountInFunction = 0;
 int SimplifiedTermIndex = 0, SimplifiedtermsCountInFunction = 0;
 
 
+// Function prototypes
 
 void SetLimits();
 void parameters();
@@ -50,12 +53,15 @@ void drawTruthTable(BinaryVariable inputs[INPUTS_COUNT], string Terms[5], bool O
 void checkEquivalent(BinaryVariable OutputMainFunction[INPUTS_COUNT], BinaryVariable OutputSimplifiedFunction[INPUTS_COUNT]);
 void return_error(string error_message);
 
+// Logic Gates Functions Prototypes
+
 bool AND_GATE(bool input1, bool input2);
 bool OR_GATE(bool input1, bool input2);
 bool NOT_GATE(bool input);
 bool GetBinaryValue(int BinaryIndex, char  Letter, BinaryVariable* OutputMainFunction);
 
 
+// Defining the inputs and output of the circuit
 
 BinaryVariable* PrimaryFunction = new BinaryVariable[INPUTS_COUNT]{
 	{0,0,0},
@@ -81,22 +87,30 @@ BinaryVariable* SimplifiedFunction = new BinaryVariable[INPUTS_COUNT]{
 
 int main()
 {
+	// Initializing the program
+
 	SetLimits();
 	parameters();
 
+
+	// Taking the input from the user
 	cout << "Please enter your function, then in a new line enter the simplified function. After entering the simplified function, end your lines with ';'" << endl;
 	cin.ignore();
 	getline(cin, Bothfunction, ';');
 	cout << endl;
 
+	// Splitting the input into the main function variable  and the simplified function variable
 	string function = Bothfunction.substr(0, Bothfunction.find("\n"));
 	string Simplified = Bothfunction.substr(Bothfunction.find("\n") + 1, Bothfunction.length() - 1);
 	
+
+	// Validating the input, the user must stop the program if any errors occur
 	cout << "The function is: " << function << endl << endl;
 	cout << "The simplified function is: " << Simplified << endl << endl;
+	cout << "Restart the program if the function is incorrect." << endl << endl;
 
 	
-	
+	// For loops are used to split the function into terms and store them in an array
 	for (int i = 0; i < function.length(); i++)
 	{
 		if (function[i] == '(')
@@ -133,12 +147,26 @@ int main()
 		}
 	}
 
+
+
+	// Checking if the user has entered the function in the correct forma
 	if (PrimaryTermIndex != PrimarytermsCountInFunction)
 	{
 		return_error("There has been a bracket opened and not closed.");
 		return 0;
 	}
 	if (PrimaryTermIndex > 5)
+	{
+		return_error("You have exceded the maximum number of terms (max. number: 5)");
+		return 0;
+	}
+
+	if (SimplifiedTermIndex != SimplifiedtermsCountInFunction)
+	{
+		return_error("There has been a bracket opened and not closed.");
+		return 0;
+	}
+	if (SimplifiedTermIndex > 5)
 	{
 		return_error("You have exceded the maximum number of terms (max. number: 5)");
 		return 0;
@@ -155,6 +183,8 @@ int main()
 	bool Output_of_function[INPUTS_COUNT] = { 0,0,0,0,0,0,0,0 };
 
 
+
+	// The following for loops are used to calculate the output of each term in the functions
 	for (int i = 0; i < PrimarytermsCountInFunction; i++) 
 	{
 		literalIndex = 0;
@@ -340,7 +370,7 @@ int main()
 	};
 
 
-
+	// The following for loops are used to calculate the output of the functions
 	for (int i = 0; i < INPUTS_COUNT; i++)
 	{
 		if (PrimaryFunctionType == 1) {
@@ -374,10 +404,11 @@ int main()
 	}
 
 
-
+	// Drawing the truth table for the functions
 	drawTruthTable(PrimaryFunction, PrimaryTerms, PrimaryTermsOutput, PrimaryTermIndex);
 	drawTruthTable(SimplifiedFunction, SimplifiedTerms, SimplifiedTermsOutput, SimplifiedTermIndex);
 
+	// Checking if the functions are equivalent or not
 	checkEquivalent(PrimaryFunction, SimplifiedFunction);
 
 	return 0;
